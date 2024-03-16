@@ -6,8 +6,8 @@
     <title>Register Patient | MediShare</title>
     <style>
         body {
-             font-family: Arial, sans-serif;
-            background-color: lightblue;/* Light blue theme */
+            font-family: Arial, sans-serif;
+            background-color: lightblue;
             margin: 0;
             padding: 0;
         }
@@ -25,8 +25,9 @@
             height: 600px;
             width: 600px;
             margin: 0 auto;
-            .btn {
-            background-color: #4CAF50; /* green button */
+        }
+        .btn {
+            background-color: #4CAF50;
             color: white;
             padding: 10px 20px;
             border: none;
@@ -37,7 +38,7 @@
             font-size: 16px;
         }
         h1 {
-            color: #0066cc; /* Dark blue for headers */
+            color: #0066cc;
         }
         input[type="text"],
         input[type="password"] {
@@ -51,7 +52,7 @@
         }
         input[type="submit"] {
             width: 100%;
-            background-color: #4CAF50; /* Green for submit button */
+            background-color: #4CAF50;
             color: white;
             padding: 14px 20px;
             margin: 8px 0;
@@ -67,39 +68,88 @@
 <body>
     <div class="container">
         <div class="card">
-<img src="img/l2.png" alt="Image" style="width:20%">
-
+            <img src="img/l2.png" alt="Image" style="width:20%">
             <h1>Welcome Patient to MediShare </h1>
-            <form action="#" method="POST">
-    
-              
-                <input type="text" id="name" name="name" required  placeholder="Name:"><br>
-                <input type="text" id="name" name="username" required  placeholder="Username:"><br>
-             
+            <form id="registrationForm" action="#" method="POST">
+                <input type="text" id="name" name="name" required placeholder="Name:"><br>
+                <input type="text" id="username" name="username" required placeholder="Username:"><br>
                 <input type="password" id="password" name="password" required placeholder="Password:"><br>
-                
-                <input type="text" id="metamask_id" name="metamask_id" required placeholder="MetaMask ID:"><br><br>
+                <input type="text" id="metamask_id" name="metamask_id" required placeholder="MetaMask ID:" readonly><br><br>
             </form>
-            <button class="btn"onclick="location.href='patient_login.html'">Connect Metamask Wallet</button> 
-            <button class="btn"onclick="location.href='patient_login.html'">Register</button> 
-            <button class="btn"onclick="location.href='patient_login.html'">Login</button> 
+            <button class="btn" onclick="connectMetamask()">Connect Metamask Wallet</button>
+            <button class="btn" onclick="registerPatient()">Register</button>
+            <button class="btn" onclick="loginPatient()">Login</button>
         </div>
     </div>
-    <script src="js/jquery-1.12.1.min.js"></script>
-    <!-- popper js -->
-    <script src="js/popper.min.js"></script>
-    <!-- bootstrap js -->
-    <script src="js/bootstrap.min.js"></script>
-    <!-- owl carousel js -->
-    <script src="js/owl.carousel.min.js"></script>
-    <script src="js/jquery.nice-select.min.js"></script>
-    <!-- contact js -->
-    <script src="js/jquery.ajaxchimp.min.js"></script>
-    <script src="js/jquery.form.js"></script>
-    <script src="js/jquery.validate.min.js"></script>
-    <script src="js/mail-script.js"></script>
-    <script src="js/contact.js"></script>
-    <!-- custom js -->
-    <script src="js/custom.js"></script>
+
+    <!-- Add Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+  apiKey: "AIzaSyDjCyOB9uwM6LtejH_r_uOxhjxWFl9YXjA",
+  authDomain: "medishare-219de.firebaseapp.com",
+  projectId: "medishare-219de",
+  storageBucket: "medishare-219de.appspot.com",
+  messagingSenderId: "368520223360",
+  appId: "1:368520223360:web:ef99b4aeb9e29a55226465",
+  measurementId: "G-KHWJM99MNL"
+};
+        firebase.initializeApp(firebaseConfig);
+
+        // Get a reference to the Firestore service
+        const db = firebase.firestore();
+
+        async function connectMetamask() {
+            if (window.ethereum) {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    const metamaskIdInput = document.getElementById('metamask_id');
+                    metamaskIdInput.value = accounts[0];
+                } catch (error) {
+                    console.error(error);
+                }
+            } else {
+                alert('Please install MetaMask extension to use this feature.');
+            }
+        }
+
+        function registerPatient() {
+    const name = document.getElementById('name').value;
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const metamaskId = document.getElementById('metamask_id').value;
+
+    // Add a new document with a generated ID
+    db.collection("patients").add({
+        name: name,
+        username: username,
+        password: password,
+        metamaskId: metamaskId
+    })
+    .then((docRef) => {
+        console.log("Patient registered with ID: ", docRef.id);
+        alert("Patient registered successfully!");
+        // Clear form fields after successful registration
+        document.getElementById('name').value = '';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('metamask_id').value = '';
+    })
+    .catch((error) => {
+        console.error("Error adding patient: ", error);
+    });
+}
+
+
+        function loginPatient() {
+            // Implement patient login functionality here
+            // This can be done similarly to registration, by querying the Firestore collection
+        }
+    </script>
 </body>
 </html>
